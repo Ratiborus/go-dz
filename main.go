@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 )
 
@@ -12,7 +14,17 @@ const UsdToEur = 0.92
 const UsdToRub = 75.0
 const EurToRub = UsdToRub / UsdToEur
 
+type ConvertMap = map[string]ConvertData
+type ConvertData = map[string]float64
+
+var convertMap = ConvertMap{
+	"usd": ConvertData{"eur": UsdToEur, "rub": UsdToRub},
+	"eur": ConvertData{"usd": 1 / UsdToEur, "rub": EurToRub},
+	"rub": ConvertData{"usd": 1 / UsdToRub, "eur": 1 / EurToRub},
+}
+
 func main() {
+
 	fmt.Println("___Конвертер валюты___")
 	for {
 		source := getSourceInput()
@@ -35,34 +47,21 @@ func getSourceInput() string {
 			break
 		}
 	}
-	return source
+	return strings.ToLower(source)
 }
 
 func getTragetInput(source string) string {
 	var target string
 	for {
-		listCurrencies := getListAvailableCurrencies(source)
-		fmt.Printf("Введите целевую валюту для конвертации (%v): ", listCurrencies)
+		listCurrencies := maps.Keys(convertMap[source])
+		fmt.Printf("Введите целевую валюту для конвертации %v: ", slices.Collect(listCurrencies))
 		_, err := fmt.Scan(&target)
+		target = strings.ToLower(target)
 		if isCorrectInput(err, target) && isCorrectTargetInput(source, target) {
 			break
 		}
 	}
 	return target
-}
-
-func getListAvailableCurrencies(source string) string {
-	pattern := "%v, %v"
-	switch source {
-	case Usd:
-		return fmt.Sprintf(pattern, Eur, Rub)
-	case Eur:
-		return fmt.Sprintf(pattern, Usd, Rub)
-	case Rub:
-		return fmt.Sprintf(pattern, Usd, Eur)
-	default:
-		panic(fmt.Sprintf("Incorrect currency '%v'", source))
-	}
 }
 
 func isCorrectInput(err error, val string) bool {
@@ -81,21 +80,18 @@ func isCorrectTargetInput(source, target string) bool {
 		fmt.Println("Исходная и целевая валюта должны отличаться")
 		return false
 	}
-	switch source {
-	case Usd:
-		return target == Eur || target == Rub
-	case Eur:
-		return target == Usd || target == Rub
-	case Rub:
-		return target == Usd || target == Eur
-	default:
+	nestedMap, ok := convertMap[source]
+	if !ok {
 		panic(fmt.Sprintf("Unknown currency: %v", source))
 	}
+	_, ok = nestedMap[target]
+	return ok
 }
 
 func unknownCurrency(val string) bool {
 	normalized := strings.ToLower(val)
-	return !(normalized == Usd || normalized == Eur || normalized == Rub)
+	_, ok := convertMap[normalized]
+	return !ok
 }
 
 func getAmountInput() int {
@@ -114,37 +110,7 @@ func getAmountInput() int {
 }
 
 func calculate(amount int, source, target string) float64 {
-	switch source {
-	case Usd:
-		switch target {
-		case Eur:
-			return float64(amount) * UsdToEur
-		case Rub:
-			return float64(amount) * UsdToRub
-		default:
-			panic(fmt.Sprintf("Incorrect target input (source = %v, target = %v)", source, target))
-		}
-	case Eur:
-		switch target {
-		case Usd:
-			return float64(amount) / UsdToEur
-		case Rub:
-			return float64(amount) * EurToRub
-		default:
-			panic(fmt.Sprintf("Incorrect target input (source = %v, target = %v)", source, target))
-		}
-	case Rub:
-		switch target {
-		case Usd:
-			return float64(amount) / UsdToRub
-		case Eur:
-			return float64(amount) / EurToRub
-		default:
-			panic(fmt.Sprintf("Incorrect target input (source = %v, target = %v)", source, target))
-		}
-	default:
-		panic(fmt.Sprintf("Unknown currency '%v'", source))
-	}
+	return float64(amount) * convertMap[source][target]
 }
 
 func proceed() bool {
