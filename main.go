@@ -17,20 +17,19 @@ const EurToRub = UsdToRub / UsdToEur
 type ConvertMap = map[string]ConvertData
 type ConvertData = map[string]float64
 
-var convertMap = ConvertMap{
-	"usd": ConvertData{"eur": UsdToEur, "rub": UsdToRub},
-	"eur": ConvertData{"usd": 1 / UsdToEur, "rub": EurToRub},
-	"rub": ConvertData{"usd": 1 / UsdToRub, "eur": 1 / EurToRub},
-}
-
 func main() {
 
 	fmt.Println("___Конвертер валюты___")
+	var convertMap = ConvertMap{
+		"usd": ConvertData{"eur": UsdToEur, "rub": UsdToRub},
+		"eur": ConvertData{"usd": 1 / UsdToEur, "rub": EurToRub},
+		"rub": ConvertData{"usd": 1 / UsdToRub, "eur": 1 / EurToRub},
+	}
 	for {
-		source := getSourceInput()
+		source := getSourceInput(&convertMap)
 		amount := getAmountInput()
-		target := getTragetInput(source)
-		result := calculate(amount, source, target)
+		target := getTragetInput(source, &convertMap)
+		result := calculate(amount, source, target, &convertMap)
 		fmt.Printf("Результат конвертации %v (%v) = %.2f (%v)\n", amount, source, result, target)
 		if !proceed() {
 			break
@@ -38,49 +37,49 @@ func main() {
 	}
 }
 
-func getSourceInput() string {
+func getSourceInput(convertMap *ConvertMap) string {
 	var source string
 	for {
 		fmt.Printf("Введите исходную валюту для конвертации (%v, %v, %v): ", Usd, Eur, Rub)
 		_, err := fmt.Scan(&source)
-		if isCorrectInput(err, source) {
+		if isCorrectInput(err, source, convertMap) {
 			break
 		}
 	}
 	return strings.ToLower(source)
 }
 
-func getTragetInput(source string) string {
+func getTragetInput(source string, convertMap *ConvertMap) string {
 	var target string
 	for {
-		listCurrencies := maps.Keys(convertMap[source])
+		listCurrencies := maps.Keys((*convertMap)[source])
 		fmt.Printf("Введите целевую валюту для конвертации %v: ", slices.Collect(listCurrencies))
 		_, err := fmt.Scan(&target)
 		target = strings.ToLower(target)
-		if isCorrectInput(err, target) && isCorrectTargetInput(source, target) {
+		if isCorrectInput(err, target, convertMap) && isCorrectTargetInput(source, target, convertMap) {
 			break
 		}
 	}
 	return target
 }
 
-func isCorrectInput(err error, val string) bool {
+func isCorrectInput(err error, val string, convertmap *ConvertMap) bool {
 	if err != nil {
 		fmt.Printf("Произошла ошибка: %v,  повторите ввод\n", err)
 		return false
-	} else if unknownCurrency(val) {
+	} else if unknownCurrency(val, convertmap) {
 		fmt.Printf("Вы ввели неизвестную валюту '%v', повторите ввод \n", val)
 		return false
 	}
 	return true
 }
 
-func isCorrectTargetInput(source, target string) bool {
+func isCorrectTargetInput(source, target string, convertMap *ConvertMap) bool {
 	if source == target {
 		fmt.Println("Исходная и целевая валюта должны отличаться")
 		return false
 	}
-	nestedMap, ok := convertMap[source]
+	nestedMap, ok := (*convertMap)[source]
 	if !ok {
 		panic(fmt.Sprintf("Unknown currency: %v", source))
 	}
@@ -88,9 +87,9 @@ func isCorrectTargetInput(source, target string) bool {
 	return ok
 }
 
-func unknownCurrency(val string) bool {
+func unknownCurrency(val string, convertMap *ConvertMap) bool {
 	normalized := strings.ToLower(val)
-	_, ok := convertMap[normalized]
+	_, ok := (*convertMap)[normalized]
 	return !ok
 }
 
@@ -109,8 +108,8 @@ func getAmountInput() int {
 	}
 }
 
-func calculate(amount int, source, target string) float64 {
-	return float64(amount) * convertMap[source][target]
+func calculate(amount int, source, target string, convertMap *ConvertMap) float64 {
+	return float64(amount) * (*convertMap)[source][target]
 }
 
 func proceed() bool {
