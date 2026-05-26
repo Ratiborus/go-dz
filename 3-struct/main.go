@@ -1,6 +1,7 @@
 package main
 
 import (
+	"app/bin/api"
 	"app/bin/bins"
 	"app/bin/storage"
 	"fmt"
@@ -14,5 +15,6 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Printf("Bean example %v: %v", bin.Bins[0].Id, bin.Bins[0].Name)
+	fmt.Printf("Bean example %v: %v\n", bin.Bins[0].Id, bin.Bins[0].Name)
+	api.Test()
 }
