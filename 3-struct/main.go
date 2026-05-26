@@ -3,6 +3,7 @@ package main
 import (
 	"app/bin/api"
 	"app/bin/bins"
+	"app/bin/config"
 	"app/bin/storage"
 	"fmt"
 )
@@ -16,5 +17,7 @@ func main() {
 		return
 	}
 	fmt.Printf("Bean example %v: %v\n", bin.Bins[0].Id, bin.Bins[0].Name)
-	api.Test()
+	conf := config.NewConfig()
+	api := api.NewApi(conf)
+	fmt.Println(api)
 }
