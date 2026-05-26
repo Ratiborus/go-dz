@@ -13,12 +13,23 @@ const AVG string = "avg"
 const SUM string = "sum"
 const MED string = "med"
 
+var operations = map[string]func([]int) float64{
+	AVG: avg,
+	SUM: sum,
+	MED: med,
+}
+
 func main() {
 	for {
-		operation := readOperation()
-		numbers := readNumbers()
+		op := readOperation()
+		numbers := read("Введите числовой набор: ", "числовой набор в формате (1, 2, 3)")
 		arr := toArray(numbers)
-		res := calculate(operation, arr[:])
+		fn, ok := operations[normalize(op)]
+		if !ok {
+			fmt.Printf("Operation %v is not found\n", op)
+			continue
+		}
+		res := fn(arr[:])
 		fmt.Printf("Результат вычисления: %.2f\n", res)
 		if !proceed() {
 			break
@@ -26,15 +37,14 @@ func main() {
 	}
 }
 
+func normalize(s string) string {
+	return strings.TrimSpace(strings.ToLower(s))
+}
+
 func readOperation() string {
 	for {
-		fmt.Printf("Введите тип операции(AVG, SUM, MED): ")
-		var operation string
-		_, err := fmt.Scan(&operation)
-		if err != nil {
-			fmt.Printf("Ошибка ввода %v введите AVG, SUM, MED\n", err)
-			continue
-		}
+		operation := read("Введите тип операции(AVG, SUM, MED): ", "AVG, SUM, MED")
+		operation = normalize(operation)
 		if isIncorrect(operation) {
 			fmt.Printf("Неизвестная команда %v, введите AVG, SUM, MED\n", operation)
 			continue
@@ -45,18 +55,17 @@ func readOperation() string {
 }
 
 func isIncorrect(operation string) bool {
-	return !(strings.EqualFold(AVG, operation) ||
-		strings.EqualFold(SUM, operation) ||
-		strings.EqualFold(MED, operation))
+	_, ok := operations[operation]
+	return !ok
 }
 
-func readNumbers() string {
+func read(inputMessage string, errMessage string) string {
 	for {
-		fmt.Printf("Введите числовой набор: ")
+		fmt.Print(inputMessage)
 		reader := bufio.NewReader(os.Stdin)
 		line, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Printf("Ошибка ввода %v введите числовой набор в формате (1, 2, 3)\n", err)
+			fmt.Printf("Ошибка ввода %v введите %v\n", err, errMessage)
 			continue
 		}
 		return line
@@ -75,19 +84,6 @@ func toArray(nums string) []int {
 		arr = append(arr, num)
 	}
 	return arr
-}
-
-func calculate(op string, arr []int) float64 {
-	switch {
-	case strings.EqualFold(AVG, op):
-		return avg(arr)
-	case strings.EqualFold(SUM, op):
-		return sum(arr)
-	case strings.EqualFold(MED, op):
-		return med(arr)
-	default:
-		panic(fmt.Sprintf("Unknown operation %v", op))
-	}
 }
 
 func avg(arr []int) float64 {
