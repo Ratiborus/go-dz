@@ -1,0 +1,28 @@
+info:
+  name: create bins
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{URL}}/b"
+  headers:
+    - name: X-Bin-Name
+      value: "1234"
+    - name: Content-Type
+      value: application/json
+    - name: X-Master-Key
+      value: "{{API_KEY}}"
+  body:
+    type: json
+    data: |-
+      {
+        "first-bin": "Hello World2"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

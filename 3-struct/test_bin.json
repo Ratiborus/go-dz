@@ -1,0 +1,10 @@
+{
+    "title": "Тестовый Бин",
+    "version": 1,
+    "is_public": true,
+    "tags": ["golang", "purpleschool", "test"],
+    "settings": {
+      "theme": "dark",
+      "notifications": false
+    }
+  }

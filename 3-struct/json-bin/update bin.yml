@@ -1,0 +1,24 @@
+info:
+  name: update bin
+  type: http
+
+http:
+  method: PUT
+  url: "{{URL}}/b/:binId"
+  params:
+    - name: binId
+      value: 6a2b09d9da38895dfeb0106e
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "first-bin-2": "version2"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

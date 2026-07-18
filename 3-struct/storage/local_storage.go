@@ -15,14 +15,15 @@ type LocalStorage struct {
 	fileName string
 }
 
-func NewLocalStorage() Storage {
+func New() Storage {
 	return &LocalStorage{fileName: storage}
 }
 
 func (s *LocalStorage) Read() (*bins.BinList, error) {
-	b, err := os.ReadFile(s.fileName)
+	b, err := file.ReadFile(s.fileName)
 	if os.IsNotExist(err) {
-		return nil, fmt.Errorf("Storage file is not found %w", err)
+		file.WriteFile(s.fileName, nil)
+		return bins.NewBinList(nil), nil
 	} else {
 		var list bins.BinList
 		err := json.Unmarshal(b, &list)
@@ -39,16 +40,16 @@ func (s *LocalStorage) Write(bin *bins.Bin) error {
 		created := bins.BinList{
 			Bins: []bins.Bin{*bin},
 		}
-		return s.saveBinList(&created)
+		return s.WriteList(&created)
 	} else if err != nil {
 		return fmt.Errorf("Can not save Bin to existed storage %w", err)
 	} else {
 		list.Bins = append(list.Bins, *bin)
-		return s.saveBinList(list)
+		return s.WriteList(list)
 	}
 }
 
-func (s *LocalStorage) saveBinList(list *bins.BinList) error {
+func (s *LocalStorage) WriteList(list *bins.BinList) error {
 	marshal, err := json.Marshal(list)
 	if err != nil {
 		return fmt.Errorf("Can not marshal Bin list %w", err)

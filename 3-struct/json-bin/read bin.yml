@@ -1,0 +1,22 @@
+info:
+  name: read bin
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{URL}}//b/:binId"
+  headers:
+    - name: X-Master-Key
+      value: "{{API_KEY}}"
+  params:
+    - name: binId
+      value: 6a5a69e8f5f4af5e299d8910
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
