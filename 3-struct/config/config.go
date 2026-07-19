@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	Key    string
-	apiUrl url.URL
+	ApiUrl url.URL
 }
 
 func NewConfig() *Config {
@@ -27,9 +27,9 @@ func NewConfig() *Config {
 	if err != nil {
 		panic(fmt.Sprintf("Can not parse api url(API_URL) to url string %v", err))
 	}
-	return &Config{Key: key, apiUrl: *u}
+	return &Config{Key: key, ApiUrl: *u}
 }
 
 func (c *Config) BinUrl() *url.URL {
-	return c.apiUrl.JoinPath("b")
+	return c.ApiUrl.JoinPath("b")
 }
