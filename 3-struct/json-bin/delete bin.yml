@@ -1,0 +1,22 @@
+info:
+  name: delete bin
+  type: http
+  seq: 4
+
+http:
+  method: DELETE
+  url: "{{URL}}/b/:binId"
+  headers:
+    - name: X-Master-Key
+      value: "{{API_KEY}}"
+  params:
+    - name: binId
+      value: 6a5b7445da38895dfe6edd65
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,1 +1,1 @@
-{"Bins":[{"Id":"1","Private":false,"CreatedAt":"2026-05-15T19:54:19.0762841+03:00","Name":"first-bin"},{"Id":"1","Private":false,"CreatedAt":"2026-05-26T22:46:49.4247703+03:00","Name":"first-bin"}]}
+{"Bins":[{"record":{"is_public":true,"settings":{"notifications":false,"theme":"dark"},"tags":["golang","purpleschool","test"],"title":"Тестовый Бин","version":1},"metadata":{"id":"6a5b9250f5f4af5e29a0de0a","private":true,"name":"testv1","createdAt":"2026-07-18T14:48:48.477Z"}}]}

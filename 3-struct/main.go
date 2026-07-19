@@ -1,23 +1,20 @@
 package main
 
 import (
-	"app/bin/api"
-	"app/bin/bins"
-	"app/bin/config"
-	"app/bin/storage"
+	"app/bin/args"
+	"app/bin/worker"
 	"fmt"
 )
 
 func main() {
-	var storage storage.Storage = storage.NewLocalStorage()
-	storage.Write(bins.NewBin("1", "first-bin", false))
-	bin, err := storage.Read()
+	fmt.Println("____Приложение для работы с  json файлами____")
+	argsData, err := args.ReadArgs()
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(fmt.Errorf("Can not read the args %s", err.Error()))
 	}
-	fmt.Printf("Bean example %v: %v\n", bin.Bins[0].Id, bin.Bins[0].Name)
-	conf := config.NewConfig()
-	api := api.NewApi(conf)
-	fmt.Println(api)
+	err = worker.Make(argsData)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println("____Программа завершила свою работу___")
 }
